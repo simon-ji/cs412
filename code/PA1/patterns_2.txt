@@ -50,8 +50,6 @@
 823:General Dentistry
 1369:Breakfast & Brunch;Restaurants
 2416:American (Traditional);Restaurants
-1369:Restaurants;Breakfast & Brunch
-2416:Restaurants;American (Traditional)
 2364:Restaurants;Sandwiches
 1848:Restaurants;Italian
 2101:Restaurants;Food
@@ -66,115 +64,38 @@
 2515:Restaurants;Mexican
 798:Restaurants;Sushi Bars
 848:Restaurants;Japanese
-2364:Sandwiches;Restaurants
-1848:Italian;Restaurants
-2101:Food;Restaurants
 2199:Food;Coffee & Tea
 1424:Food;Grocery
 1018:Food;Ice Cream & Frozen Yogurt
 1115:Food;Bakeries
 1150:Food;Specialty Food
-2199:Coffee & Tea;Food
-2851:Fast Food;Restaurants
 774:Fast Food;Burgers
 1424:Home Services;Real Estate
-1424:Real Estate;Home Services
-2423:Bars;Restaurants
 818:Bars;Sports Bars
 4328:Bars;Nightlife
 874:Bars;Pubs
-818:Sports Bars;Bars
 818:Sports Bars;Nightlife
-2533:Nightlife;Restaurants
-4328:Nightlife;Bars
-818:Nightlife;Sports Bars
 874:Nightlife;Pubs
-1593:American (New);Restaurants
 1716:Automotive;Auto Repair
-1424:Grocery;Food
 1471:Event Planning & Services;Hotels & Travel
 1431:Event Planning & Services;Hotels
 1586:Shopping;Home & Garden
 3078:Shopping;Fashion
 1138:Shopping;Women's Clothing
-1586:Home & Garden;Shopping
-1716:Auto Repair;Automotive
-1774:Burgers;Restaurants
-774:Burgers;Fast Food
-2657:Pizza;Restaurants
 2091:Beauty & Spas;Hair Salons
 1667:Beauty & Spas;Nail Salons
 1442:Active Life;Fitness & Instruction
-1018:Ice Cream & Frozen Yogurt;Food
-2091:Hair Salons;Beauty & Spas
 1694:Doctors;Health & Medical
-1694:Health & Medical;Doctors
 1195:Health & Medical;Dentists
 823:Health & Medical;General Dentistry
-1002:Cafes;Restaurants
-1115:Bakeries;Food
-1471:Hotels & Travel;Event Planning & Services
 1431:Hotels & Travel;Hotels
-1431:Hotels;Event Planning & Services
-1431:Hotels;Hotels & Travel
-1442:Fitness & Instruction;Active Life
-1667:Nail Salons;Beauty & Spas
-3078:Fashion;Shopping
 1138:Fashion;Women's Clothing
-1629:Chinese;Restaurants
-1138:Women's Clothing;Shopping
-1138:Women's Clothing;Fashion
 870:Pet Services;Pets
-870:Pets;Pet Services
-1150:Specialty Food;Food
-2515:Mexican;Restaurants
-874:Pubs;Bars
-874:Pubs;Nightlife
-798:Sushi Bars;Restaurants
-848:Japanese;Restaurants
-1195:Dentists;Health & Medical
 823:Dentists;General Dentistry
-823:General Dentistry;Health & Medical
-823:General Dentistry;Dentists
 774:Restaurants;Fast Food;Burgers
 2423:Restaurants;Bars;Nightlife
-2423:Restaurants;Nightlife;Bars
-774:Restaurants;Burgers;Fast Food
-774:Fast Food;Restaurants;Burgers
-774:Fast Food;Burgers;Restaurants
-2423:Bars;Restaurants;Nightlife
 818:Bars;Sports Bars;Nightlife
-2423:Bars;Nightlife;Restaurants
-818:Bars;Nightlife;Sports Bars
 874:Bars;Nightlife;Pubs
-874:Bars;Pubs;Nightlife
-818:Sports Bars;Bars;Nightlife
-818:Sports Bars;Nightlife;Bars
-2423:Nightlife;Restaurants;Bars
-2423:Nightlife;Bars;Restaurants
-818:Nightlife;Bars;Sports Bars
-874:Nightlife;Bars;Pubs
-818:Nightlife;Sports Bars;Bars
-874:Nightlife;Pubs;Bars
 1431:Event Planning & Services;Hotels & Travel;Hotels
-1431:Event Planning & Services;Hotels;Hotels & Travel
 1138:Shopping;Fashion;Women's Clothing
-1138:Shopping;Women's Clothing;Fashion
-774:Burgers;Restaurants;Fast Food
-774:Burgers;Fast Food;Restaurants
 823:Health & Medical;Dentists;General Dentistry
-823:Health & Medical;General Dentistry;Dentists
-1431:Hotels & Travel;Event Planning & Services;Hotels
-1431:Hotels & Travel;Hotels;Event Planning & Services
-1431:Hotels;Event Planning & Services;Hotels & Travel
-1431:Hotels;Hotels & Travel;Event Planning & Services
-1138:Fashion;Shopping;Women's Clothing
-1138:Fashion;Women's Clothing;Shopping
-1138:Women's Clothing;Shopping;Fashion
-1138:Women's Clothing;Fashion;Shopping
-874:Pubs;Bars;Nightlife
-874:Pubs;Nightlife;Bars
-823:Dentists;Health & Medical;General Dentistry
-823:Dentists;General Dentistry;Health & Medical
-823:General Dentistry;Health & Medical;Dentists
-823:General Dentistry;Dentists;Health & Medical
