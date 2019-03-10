@@ -45,7 +45,7 @@ function getAHC(points, K, distance_method)
         min_y = 0
         for x in 1:cluster_count
             for y in (i + 1):cluster_count
-                d = get_cluster_distrance(clusters[x], clusters[y], distance_method)
+                d = get_cluster_distrance(points[clusters[x]], points[clusters[y]], distance_method)
                 if d < min_distance
                     min_x = x
                     min_y = y
