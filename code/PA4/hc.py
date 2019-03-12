@@ -1,33 +1,5 @@
 import math
 
-# def get_cluster_distrance(cluster1, cluster2, similarity_method):
-#     cluster1_size = len(cluster1)
-#     cluster2_size = len(cluster2)
-#     point_dim = len(cluster1[0])
-#     all_distances = [0] * (cluster1_size * cluster2_size)
-
-#     k = 0
-#     for i in range(cluster1_size):
-#         for j in range(cluster2_size):
-#             #sub = [(x1 - x2) ** 2 for (x1, x2) in zip(cluster1[i], cluster2[j])]            
-#             #all_distances[k] = math.sqrt(sum(sub))
-#             sq = 0
-#             for d in range(point_dim):
-#                 sq += (cluster1[i][d] - cluster2[j][d]) ** 2
-#             all_distances[k] = math.sqrt(sq)
-#             #all_distances[k] = sq
-
-#             k += 1
-
-#     if similarity_method == 0:
-#         return min(all_distances)
-#     elif similarity_method == 1:
-#             return max(all_distances)
-#     elif similarity_method == 2:
-#         return sum(all_distances) / len(all_distances)
-#     else:
-#         raise Exception('Bad Similarity Method!')
-
 def getAHC(points, K, similarity_method):
     point_count = len(points)
     point_dim = len(points[0])
@@ -46,7 +18,7 @@ def getAHC(points, K, similarity_method):
             similarity_matrix[j][i] = s
 
     while cluster_count > K:
-        min_distance = 1e20 #math.inf
+        min_distance = math.inf
         min_x = 0
         min_y = 0
         for x in range(cluster_count - 1):
@@ -67,9 +39,6 @@ def getAHC(points, K, similarity_method):
                 else:
                     raise Exception('Bad Similarity Method!')
 
-                # cluster1_points = [points[i] for i in clusters[x]]
-                # cluster2_points = [points[i] for i in clusters[y]]
-                # d = get_cluster_distrance(cluster1_points, cluster2_points, similarity_method)
                 if d < min_distance:
                     min_x = x
                     min_y = y
