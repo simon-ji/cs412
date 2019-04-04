@@ -1,37 +1,74 @@
 import numpy as np
 import pandas as pd
 
+class TreeNode(object):
+    def __init__(self):
+        self.value = None
+        self.indecies = None
+        self.labels = None
+        self.feature_index = None
+        self.sub_trees = []
 
-def gini(feature_values, labels):
-    unique_feature_value = np.unique(feature_values)
-    unique_label_value = np.unique(labels)
+class DecisionTree(object):
+    def __init__(self):
+        self.root_node = None
     
-    feature_value_set = {}
-    for f in unique_feature_value:
-        feature_value_set[f] = np.where(feature_values == f)[0]
-    
-    g = 0
-    for f in unique_feature_value:
-        g_f = 1
-        label_set = labels[feature_value_set[f]]
-        for l in unique_label_value:
-            p_l = np.sum(label_set == l) / len(label_set)
-            g_f -= p_l ** 2
+    def predict(self):
+        return
+
+    def gini(self, feature_values, labels):
+        unique_feature_value = np.unique(feature_values)
+        unique_label_value = np.unique(labels)
         
-        g += g_f * (len(label_set)/feature_values.shape[0])
+        feature_value_set = {}
+        for f in unique_feature_value:
+            feature_value_set[f] = np.where(feature_values == f)[0]
+        
+        g = 0
+        for f in unique_feature_value:
+            g_f = 1
+            label_set = labels[feature_value_set[f]]
+            for l in unique_label_value:
+                p_l = np.sum(label_set == l) / len(label_set)
+                g_f -= p_l ** 2
+            
+            g += g_f * (len(label_set)/feature_values.shape[0])
+        
+        return g
+
+    def train(self, features, labels):
+        self.root_node = TreeNode()
+        #Add column number to the original data set for tracking purpuse
+        _data = np.hstack(([[i] for i in range(0, features.shape[0])], features))
+
+        self._split(_data, [0], labels, self.root_node)
     
-    return g
+    def _split(self, features, exclusion, labels, node):
+        if len(np.unique(labels)) == 1:                     #All data points are in same label
+            return
+        if len(exclusion) == features.shape[1] - 1:          #No column left to split
+            return
+        
+        _gini_all = [np.inf for i in range(0, features.shape[1])]
+        _indecies = np.delete([i for i in range(0, features.shape[1])], exclusion)
+        for i in _indecies:
+            _gini_all[i] = self.gini(features[:,i], labels)
 
-def split_tree(features, labels):
-    gini_all = [gini(features[:,i], labels) for i in range(0, features.shape[1])]
+        node.feature_index = np.argmin(_gini_all)
+        node.indecies = features[:,0]
+        node.labels = labels
 
-    feature_index = np.argmin(gini_all)
-    unique_feature_values = np.unique(features[:, feature_index])
-    children_indices = {}
-    for f in unique_feature_values:
-        children_indices[f] = labels[features[:, feature_index] == f].index
+        unique_feature_values = np.unique(features[:, node.feature_index ]) 
+        for f in unique_feature_values:
+            sub_node = TreeNode()
+            sub_node.value = f
+            node.sub_trees += [sub_node]
+            
+            sub_features = features[features[:, node.feature_index] == f, :]
+            sub_labels = labels[features[:, node.feature_index] == f]
+            self._split(sub_features, exclusion + [node.feature_index], sub_labels, sub_node)
 
-    return
+        return
 
 data = pd.read_csv('training.txt', sep=' ', header = None)
 train_label = data[0]
@@ -46,4 +83,6 @@ test_feature = np.array(data)
 for i in range(0, test_feature.shape[0]):
     test_feature[i] = [int(d.split(':')[1]) for d in test_feature[i]]
 
-split_tree(train_feature, train_label)
+dt = DecisionTree()
+
+dt.train(train_feature, train_label)
