@@ -30,9 +30,10 @@ class DecisionTree(object):
             label_set = labels[feature_value_set[f]]
             for l in unique_label_value:
                 p_l = np.sum(label_set == l) / len(label_set)
+                #print(p_l)
                 g_f -= p_l ** 2
             
-            g += g_f * (len(label_set)/feature_values.shape[0])
+            g += g_f * (len(label_set)/len(feature_values))
         
         return g
 
@@ -84,5 +85,10 @@ for i in range(0, test_feature.shape[0]):
     test_feature[i] = [int(d.split(':')[1]) for d in test_feature[i]]
 
 dt = DecisionTree()
+#dt.train(train_feature, train_label)
 
-dt.train(train_feature, train_label)
+features = np.array([[1,1,1],[2,2,2],[3,3,3]])
+labels = np.array([1,2,3])
+print(dt.gini(features[:,0], labels))
+
+#print(dt.gini(train_feature[:,0], train_label))
