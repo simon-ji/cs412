@@ -87,8 +87,10 @@ for i in range(0, test_feature.shape[0]):
 dt = DecisionTree()
 #dt.train(train_feature, train_label)
 
-features = np.array([[1,1,1],[2,2,2],[3,3,3]])
-labels = np.array([1,2,3])
+features = np.array([[1,1,1],[2,3,2],[2,2,1], [2,1,3],[1,1,2],[2,3,4],[1,2,4],[1,2,1]])
+labels = np.array([2,1,2,1,2,1,2,2])
 print(dt.gini(features[:,0], labels))
+print(dt.gini(features[:,1], labels))
+print(dt.gini(features[:,2], labels))
 
 #print(dt.gini(train_feature[:,0], train_label))
