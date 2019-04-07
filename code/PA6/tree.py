@@ -1,13 +1,17 @@
 import numpy as np
 import pandas as pd
+from collections import Counter
 
 class TreeNode(object):
     def __init__(self):
         self.value = None
         self.indecies = None
         self.labels = None
-        self.feature_index = None
-        self.sub_trees = []
+        self.gini_value = None
+        self.split_feature_index = None
+        self.majority_vote = None
+        self.majority_ratio = None
+        self.sub_trees = {}
 
 class DecisionTree(object):
     def __init__(self):
@@ -45,34 +49,51 @@ class DecisionTree(object):
         self._split(_data, [0], labels, self.root_node)
     
     def _split(self, features, exclusion, labels, node):
-        if len(np.unique(labels)) == 1:                     #All data points are in same label
+        if len(np.unique(labels)) == 1:                      #All data points are in same label
+            print("All data points in same class")
             return
         if len(exclusion) == features.shape[1] - 1:          #No column left to split
+            print("No column left to split")
             return
-        
+        if features.shape[0] <= 1:                           #No sample left
+            print("No sample left")
+            return
+
         _gini_all = [np.inf for i in range(0, features.shape[1])]
         _indecies = np.delete([i for i in range(0, features.shape[1])], exclusion)
         for i in _indecies:
             _gini_all[i] = self.gini(features[:,i], labels)
 
-        node.feature_index = np.argmin(_gini_all)
-        node.indecies = features[:,0]
-        node.labels = labels
+        node.split_feature_index = np.argmin(_gini_all)
+        node.gini_value =  _gini_all[node.split_feature_index]
+        # print("Split on %d, gini=%f"%(node.split_feature_index, node.gini_value))
 
-        unique_feature_values = np.unique(features[:, node.feature_index ]) 
+        unique_feature_values = np.unique(features[:, node.split_feature_index]) 
         for f in unique_feature_values:
-            sub_node = TreeNode()
-            sub_node.value = f
-            node.sub_trees += [sub_node]
-            
-            sub_features = features[features[:, node.feature_index] == f, :]
-            sub_labels = labels[features[:, node.feature_index] == f]
-            self._split(sub_features, exclusion + [node.feature_index], sub_labels, sub_node)
+            _indices = features[:, node.split_feature_index] == f
+            if len(_indices) > 0:              #Must has at least one sample for this value
+                _sub_features = features[_indices, :]
+                _sub_labels = labels[_indices]
+
+                _sub_node = TreeNode()
+                _sub_node.value = f
+                _sub_node.indecies = _sub_features[:, 0]
+                _sub_node.labels = _sub_labels
+                c = Counter(_sub_labels)
+                _sub_node.majority_vote = c.most_common(1)[0][0]
+                _sub_node.majority_ratio = c.most_common(1)[0][1] / len(_sub_labels)
+
+                # print("index= %d Split value=%d majority_vote=%d majority_ratio = %f majority_count=%d"%
+                #         (node.split_feature_index, f, _sub_node.majority_vote, _sub_node.majority_ratio, c.most_common(1)[0][1]))
+                node.sub_trees[f] = _sub_node
+
+                if (_sub_node.majority_ratio < 1) and (len(exclusion) < features.shape[1] - 2):
+                    self._split(_sub_features, exclusion + [node.split_feature_index], _sub_labels, _sub_node)
 
         return
 
 data = pd.read_csv('training.txt', sep=' ', header = None)
-train_label = data[0]
+train_label = np.array(data[0])
 train_feature = np.array(data.iloc[:,1:])
 
 for i in range(0, train_feature.shape[0]):
@@ -85,12 +106,13 @@ for i in range(0, test_feature.shape[0]):
     test_feature[i] = [int(d.split(':')[1]) for d in test_feature[i]]
 
 dt = DecisionTree()
-#dt.train(train_feature, train_label)
+dt.train(train_feature, train_label)
 
-features = np.array([[1,1,1],[2,3,2],[2,2,1], [2,1,3],[1,1,2],[2,3,4],[1,2,4],[1,2,1]])
-labels = np.array([2,1,2,1,2,1,2,2])
-print(dt.gini(features[:,0], labels))
-print(dt.gini(features[:,1], labels))
-print(dt.gini(features[:,2], labels))
+dt.predict()
+# features = np.array([[1,1,1],[1,3,2],[2,2,1], [2,1,3],[1,1,2],[2,3,4],[1,2,4],[1,2,1]])
+# labels = np.array([2,1,2,1,2,1,2,2])
+# print(dt.gini(features[:,0], labels))
+# print(dt.gini(features[:,1], labels))
+# print(dt.gini(features[:,2], labels))
 
 #print(dt.gini(train_feature[:,0], train_label))
