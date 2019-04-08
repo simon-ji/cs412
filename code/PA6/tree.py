@@ -17,8 +17,15 @@ class DecisionTree(object):
     def __init__(self):
         self.root_node = None
     
-    def predict(self):
-        return
+    def predict(self, X):
+        _value = None
+        _node = self.root_node
+
+        while len(_node.sub_trees) > 0 and (X[_node.split_feature_index] in _node.sub_trees):
+            _node = _node.sub_trees[X[_node.split_feature_index]]
+            _value = _node.majority_vote     
+        
+        return _value
 
     def gini(self, feature_values, labels):
         unique_feature_value = np.unique(feature_values)
@@ -64,13 +71,14 @@ class DecisionTree(object):
         for i in _indecies:
             _gini_all[i] = self.gini(features[:,i], labels)
 
-        node.split_feature_index = np.argmin(_gini_all)
-        node.gini_value =  _gini_all[node.split_feature_index]
-        # print("Split on %d, gini=%f"%(node.split_feature_index, node.gini_value))
+        _split_index = np.argmin(_gini_all) 
+        node.split_feature_index = _split_index - 1
+        node.gini_value =  _gini_all[_split_index]
+        # print("Split on %d, gini=%f"%(_split_index, node.gini_value))
 
-        unique_feature_values = np.unique(features[:, node.split_feature_index]) 
+        unique_feature_values = np.unique(features[:, _split_index]) 
         for f in unique_feature_values:
-            _indices = features[:, node.split_feature_index] == f
+            _indices = features[:, _split_index] == f
             if len(_indices) > 0:              #Must has at least one sample for this value
                 _sub_features = features[_indices, :]
                 _sub_labels = labels[_indices]
@@ -84,11 +92,11 @@ class DecisionTree(object):
                 _sub_node.majority_ratio = c.most_common(1)[0][1] / len(_sub_labels)
 
                 # print("index= %d Split value=%d majority_vote=%d majority_ratio = %f majority_count=%d"%
-                #         (node.split_feature_index, f, _sub_node.majority_vote, _sub_node.majority_ratio, c.most_common(1)[0][1]))
+                #         (_split_index, f, _sub_node.majority_vote, _sub_node.majority_ratio, c.most_common(1)[0][1]))
                 node.sub_trees[f] = _sub_node
 
                 if (_sub_node.majority_ratio < 1) and (len(exclusion) < features.shape[1] - 2):
-                    self._split(_sub_features, exclusion + [node.split_feature_index], _sub_labels, _sub_node)
+                    self._split(_sub_features, exclusion + [_split_index], _sub_labels, _sub_node)
 
         return
 
