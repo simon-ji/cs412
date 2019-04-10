@@ -14,30 +14,35 @@ class  NaiveBayes(object):
 
         self.feature_count = len(features_values)
         self.P_X_C = [{i:{c:0 for c in class_values} for i in values} for values in features_values ]
-        _row_count = 0
 
         #Count
         for _row in train_data:
-            _row_count += 1
-            #for _feature_index in range(0, self.feature_count):
-            
-            _class = _row[-1]
-            if _class in self.P_C:
-                self.P_C[_class] += 1
-            else:
-                self.P_C[_class] = 1
+            _class_type = _row[-1]
+            self.P_C[_class_type] += 1
+            for _feature_index in range(0, self.feature_count):
+                _feature_value = _row[_feature_index]
+                self.P_X_C[_feature_index][_feature_value][_class_type] += 1
 
-        for _key in self.P_C.keys():
-            self.P_C[_key] = self.P_C[_key] / _row_count
-        
+        #Calculate probabilities
+        for _feature_index in range(0, self.feature_count):
+            for _feature_key in self.P_X_C[_feature_index].keys():
+                for _class_key in self.P_X_C[_feature_index][_feature_key].keys():
+                    self.P_X_C[_feature_index][_feature_key][_class_key] = \
+                        (self.P_X_C[_feature_index][_feature_key][_class_key] + 0.1) \
+                            / (self.P_C[_class_key] + 0.1 * len(features_values[_feature_index]))
+                
+        for _class_key in self.P_C.keys():
+            self.P_C[_class_key] = (self.P_C[_class_key] + 0.1) / (len(train_data) + 0.1 * self.class_count)
 
-
-
-        print(self.P_C)
 
     def predict(self, X):
-        return 
+        p = 0
+        for c in self.P_C.keys():
+            for i in X:
+                p += 1
     
+        return p
+
 
 data = np.array(pd.read_csv('data.txt'))
 
