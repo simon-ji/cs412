@@ -1,5 +1,6 @@
-import pandas as pd
-import numpy as np
+# import pandas as pd
+# import numpy as np
+import sys
 
 class  NaiveBayes(object):
     def __init__(self):
@@ -7,10 +8,12 @@ class  NaiveBayes(object):
         self.P_X_C = None
         self.feature_count = 0
         self.class_count = 0
+        self.p = None
     
     def fit(self, train_data, class_values, features_values):
         self.class_count = len(class_values)
         self.P_C = {c:0 for c in class_values}
+        self.p = [0 for i in range(0, self.class_count)]
 
         self.feature_count = len(features_values)
         self.P_X_C = [{i:{c:0 for c in class_values} for i in values} for values in features_values ]
@@ -36,18 +39,38 @@ class  NaiveBayes(object):
 
 
     def predict(self, X):
-        p = 0
+        _class_type = None
+        _max_p = 0
+
         for c in self.P_C.keys():
-            for i in X:
-                p += 1
+            p = 1
+            for i in range(0, len(X)):
+                p *= self.P_X_C[i][X[i]][c]
+            
+            p *= self.P_C[c]
+            if p > _max_p:
+               _class_type = c 
+               _max_p = p
     
-        return p
+        return _class_type
 
 
-data = np.array(pd.read_csv('data.txt'))
+# data = np.array(pd.read_csv('data.txt'))
+# train = data[data[:, -1] > 0][:, 1:]
+# test = data[data[:, -1] < 0][:, 1:-1]
 
-train = data[data[:, -1] > 0][:, 1:]
-test = data[data[:, -1] < 0][:, 1:]
+head = [i for i in sys.stdin.readline().split(',')] 
+train = []
+test = []
+for line in sys.stdin:
+    _row = [i for i in line.split(',')]
+    if (len(_row)  != 18):
+         break
+    _row = [int(i) for i in _row[1:]]
+    if _row[-1] != -1:
+        train += [_row]
+    else:
+        test += [_row[:-1]]
 
 nb = NaiveBayes()
 class_values = [1,2,3,4,5,6,7]
@@ -70,3 +93,5 @@ features_values = [
     [0,1],
 ]
 nb.fit(train,class_values, features_values)
+for x in test:
+    print(nb.predict(x))
