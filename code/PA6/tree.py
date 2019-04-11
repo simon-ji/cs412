@@ -16,6 +16,7 @@ class TreeNode(object):
 class DecisionTree(object):
     def __init__(self):
         self.root_node = None
+        self.leaf_count = 0
     
     def predict(self, X):
         _value = None
@@ -76,7 +77,7 @@ class DecisionTree(object):
         node.gini_value =  _gini_all[_split_index]
         # print("Split on %d, gini=%f"%(_split_index, node.gini_value))
 
-        unique_feature_values = np.unique(features[:, _split_index]) 
+        unique_feature_values = np.unique(features[:, _split_index])        
         for f in unique_feature_values:
             _indices = features[:, _split_index] == f
             if len(_indices) > 0:              #Must has at least one sample for this value
@@ -97,6 +98,9 @@ class DecisionTree(object):
 
                 if (_sub_node.majority_ratio < 1) and (len(exclusion) < features.shape[1] - 2):
                     self._split(_sub_features, exclusion + [_split_index], _sub_labels, _sub_node)
+                else:
+                    self.leaf_count += 1
+                    print("%d, %f"%(len(_sub_labels), _sub_node.majority_ratio))
 
         return
 
@@ -115,8 +119,11 @@ for i in range(0, test_feature.shape[0]):
 
 dt = DecisionTree()
 dt.train(train_feature, train_label)
+print(dt.leaf_count)
 
-dt.predict()
+for i in [1,100,200,300,1000,2000, 2999]:
+    print(dt.predict(train_feature[i]))
+    print(train_label[i])
 # features = np.array([[1,1,1],[1,3,2],[2,2,1], [2,1,3],[1,1,2],[2,3,4],[1,2,4],[1,2,1]])
 # labels = np.array([2,1,2,1,2,1,2,2])
 # print(dt.gini(features[:,0], labels))
