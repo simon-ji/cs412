@@ -8,15 +8,17 @@ class TreeNode(object):
         self.indecies = None
         self.labels = None
         self.gini_value = None
+        self.parent_gini_value = 1
         self.split_feature_index = None
         self.majority_vote = None
         self.majority_ratio = None
         self.sub_trees = {}
 
 class DecisionTree(object):
-    def __init__(self):
+    def __init__(self, min_sample = 5):
         self.root_node = None
         self.leaf_count = 0
+        self.min_sample = min_sample
     
     def predict(self, X):
         _value = None
@@ -72,7 +74,11 @@ class DecisionTree(object):
         for i in _indecies:
             _gini_all[i] = self.gini(features[:,i], labels)
 
-        _split_index = np.argmin(_gini_all) 
+        _split_index = np.argmin(_gini_all)
+        # Do not need to do this
+        # if (node.parent_gini_value <= _gini_all[_split_index]):
+        #     print("Parent is better. %f < %f"%(node.parent_gini_value, _gini_all[_split_index]))
+        #     return
         node.split_feature_index = _split_index - 1
         node.gini_value =  _gini_all[_split_index]
         # print("Split on %d, gini=%f"%(_split_index, node.gini_value))
@@ -86,6 +92,7 @@ class DecisionTree(object):
 
                 _sub_node = TreeNode()
                 _sub_node.value = f
+                _sub_node.parent_gini_value = node.gini_value
                 _sub_node.indecies = _sub_features[:, 0]
                 _sub_node.labels = _sub_labels
                 c = Counter(_sub_labels)
@@ -96,11 +103,12 @@ class DecisionTree(object):
                 #         (_split_index, f, _sub_node.majority_vote, _sub_node.majority_ratio, c.most_common(1)[0][1]))
                 node.sub_trees[f] = _sub_node
 
-                if (_sub_node.majority_ratio < 1) and (len(exclusion) < features.shape[1] - 2):
+                if (_sub_node.majority_ratio < 1) and (len(exclusion) < features.shape[1] - 2) \
+                    and (len(_sub_labels) > self.min_sample):
                     self._split(_sub_features, exclusion + [_split_index], _sub_labels, _sub_node)
                 else:
                     self.leaf_count += 1
-                    print("%d, %f"%(len(_sub_labels), _sub_node.majority_ratio))
+                    # print("%d, %f"%(len(_sub_labels), _sub_node.majority_ratio))
 
         return
 
@@ -117,17 +125,22 @@ test_feature = np.array(data)
 for i in range(0, test_feature.shape[0]):
     test_feature[i] = [int(d.split(':')[1]) for d in test_feature[i]]
 
-dt = DecisionTree()
+####Testing
+train_sample_count = int(len(train_feature) / 3 * 2)
+train_sample = np.random.choice(len(train_feature), train_sample_count, replace=False)
+test_sample = np.delete([i for i in range(0, len(train_feature))], train_sample)
+
+# for m in [1,2,4,6,8,10,12,15,20,22, 24, 26, 28, 30, 32, 34, 36, 38, 40]:
+#     dt = DecisionTree(m)
+#     dt.train(train_feature[train_sample], train_label[train_sample])
+#     print("Min_Sample:%d, Leaf Count:%d"%(m, dt.leaf_count))
+#     train_predict = [train_label[i] == dt.predict(train_feature[i]) for i in train_sample]
+#     test_predict = [train_label[i] == dt.predict(train_feature[i]) for i in test_sample]
+#     print("Training Accuracy:%f, Test Accuracy:%f"%(sum(train_predict)/len(train_predict), \
+#             sum(test_predict)/len(test_predict)))
+
+
+dt = DecisionTree(30)
 dt.train(train_feature, train_label)
-print(dt.leaf_count)
-
-for i in [1,100,200,300,1000,2000, 2999]:
-    print(dt.predict(train_feature[i]))
-    print(train_label[i])
-# features = np.array([[1,1,1],[1,3,2],[2,2,1], [2,1,3],[1,1,2],[2,3,4],[1,2,4],[1,2,1]])
-# labels = np.array([2,1,2,1,2,1,2,2])
-# print(dt.gini(features[:,0], labels))
-# print(dt.gini(features[:,1], labels))
-# print(dt.gini(features[:,2], labels))
-
-#print(dt.gini(train_feature[:,0], train_label))
+for x in test_feature:
+    print(dt.predict(x))
