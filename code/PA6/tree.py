@@ -153,7 +153,7 @@ for m in [1, 2, 4, 8, 12, 16, 20, 24, 30, 34, 40]:
         train_acc += sum(train_predict)/len(train_predict)
         test_acc += sum(test_predict)/len(test_predict)
 
-    print("Training Accuracy:%f, Test Accuracy:%f"%(train_acc / Fold, test_acc / Fold))
+    print("[%d] Training Accuracy:%f, Test Accuracy:%f"%(m, train_acc / Fold, test_acc / Fold))
 
 
 # dt = DecisionTree(30)
