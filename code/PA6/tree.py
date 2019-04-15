@@ -126,21 +126,37 @@ for i in range(0, test_feature.shape[0]):
     test_feature[i] = [int(d.split(':')[1]) for d in test_feature[i]]
 
 ####Testing
-train_sample_count = int(len(train_feature) / 3 * 2)
-train_sample = np.random.choice(len(train_feature), train_sample_count, replace=False)
-test_sample = np.delete([i for i in range(0, len(train_feature))], train_sample)
+Fold = 5
 
-# for m in [1,2,4,6,8,10,12,15,20,22, 24, 26, 28, 30, 32, 34, 36, 38, 40]:
-#     dt = DecisionTree(m)
-#     dt.train(train_feature[train_sample], train_label[train_sample])
-#     print("Min_Sample:%d, Leaf Count:%d"%(m, dt.leaf_count))
-#     train_predict = [train_label[i] == dt.predict(train_feature[i]) for i in train_sample]
-#     test_predict = [train_label[i] == dt.predict(train_feature[i]) for i in test_sample]
-#     print("Training Accuracy:%f, Test Accuracy:%f"%(sum(train_predict)/len(train_predict), \
-#             sum(test_predict)/len(test_predict)))
+train_sample_count = int(len(train_feature) / Fold)
+sample_indecis = np.random.choice(len(train_feature), len(train_feature), replace=False)
+sample = []
+for i in range(0, Fold):
+    sample += [sample_indecis[(i * train_sample_count):((i + 1) * train_sample_count)]]
 
 
-dt = DecisionTree(30)
-dt.train(train_feature, train_label)
-for x in test_feature:
-    print(dt.predict(x))
+for m in [1, 2, 4, 8, 12, 16, 20, 24, 30, 34, 40]:
+    train_acc = 0
+    test_acc = 0
+    for k in range(0, Fold):
+        train_sample = np.array([], np.int)
+        for i in range(0, Fold):
+            if i != k:
+                train_sample = np.append(train_sample, sample[i])
+        test_sample = sample[k]
+
+        dt = DecisionTree(m)
+        dt.train(train_feature[train_sample], train_label[train_sample])
+        # print("Min_Sample:%d, Leaf Count:%d"%(m, dt.leaf_count))
+        train_predict = [train_label[i] == dt.predict(train_feature[i]) for i in train_sample]
+        test_predict = [train_label[i] == dt.predict(train_feature[i]) for i in test_sample]
+        train_acc += sum(train_predict)/len(train_predict)
+        test_acc += sum(test_predict)/len(test_predict)
+
+    print("Training Accuracy:%f, Test Accuracy:%f"%(train_acc / Fold, test_acc / Fold))
+
+
+# dt = DecisionTree(30)
+# dt.train(train_feature, train_label)
+# for x in test_feature:
+#     print(dt.predict(x))
