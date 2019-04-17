@@ -1,0 +1,50 @@
+---
+title: "Decision Tree"
+output: html_notebook
+---
+
+```{r}
+library(readr)
+train_data <- read_delim("training.txt", " ", escape_double = FALSE, 
+                       col_names = FALSE, trim_ws = TRUE)
+train_data = data.frame(sapply(train_data, stringr::str_sub, start = -1, 
+                               end = -1))
+
+test_data <- read_delim("testing.txt", " ", escape_double = FALSE, 
+                       col_names = FALSE, trim_ws = TRUE)
+test_data = data.frame(sapply(test_data, stringr::str_sub, start = -1, 
+                               end = -1))
+colnames(test_data) = colnames(train_data)[2:dim(train_data)[2]]
+```
+
+```{r}
+library(rpart)
+
+model = rpart(X1 ~ ., data = train_data)
+```
+
+```{r}
+test_label = predict(model, test_data, type="class")
+write(array(test_label), file = 'r.txt')
+```
+
+```{r}
+library(xgboost)
+
+X_train = train_data[,2:dim(train_data)[2]]
+X_train = model.matrix(~., X_train)[, -1]
+Y_train = train_data$X1
+
+xgb.model = xgboost(data = X_train, label=Y_train,
+                      objective = "binary:logistic",
+                      eval_metric = "logloss",
+                      nround = 500,
+                      verbose = TRUE)
+
+```
+
+```{r}
+X_test = model.matrix(~., test_data)[, -1]
+test_label = predict(xgb.model, X_test, prediction_type="class")
+```
+
