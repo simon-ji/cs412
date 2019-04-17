@@ -173,7 +173,7 @@ for i in range(0, test_feature.shape[0]):
 #     print("[%d] Training Accuracy:%f, Test Accuracy:%f"%(m, train_acc / Fold, test_acc / Fold))
 
 
-dt = DecisionTree(4)
+dt = DecisionTree(16)
 dt.train(train_feature, train_label)
 # dt.explore_structure()
 for x in test_feature:
