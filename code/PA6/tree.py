@@ -65,7 +65,7 @@ class DecisionTree(object):
         if len(exclusion) == features.shape[1] - 1:          #No column left to split
             print("No column left to split")
             return
-        if features.shape[0] <= 1:                           #No sample left
+        if features.shape[0] < self.min_sample:              #No sample left
             print("No sample left")
             return
 
@@ -83,9 +83,16 @@ class DecisionTree(object):
         node.gini_value =  _gini_all[_split_index]
         # print("Split on %d, gini=%f"%(_split_index, node.gini_value))
 
-        unique_feature_values = np.unique(features[:, _split_index])        
-        for f in unique_feature_values:
-            _indices = features[:, _split_index] == f
+        _unique_feature_values = np.unique(features[:, _split_index])
+        all_indices = {f:features[:, _split_index] == f for f in _unique_feature_values}
+
+        #Check all subtree must contains at least min samples
+        _subtree_sample = [sum(all_indices[f]) >= self.min_sample for f in all_indices.keys()]
+        if (sum(_subtree_sample) < len(_subtree_sample)):     
+            return
+
+        for f in all_indices.keys():
+            _indices = all_indices[f]
             if len(_indices) > 0:              #Must has at least one sample for this value
                 _sub_features = features[_indices, :]
                 _sub_labels = labels[_indices]
@@ -112,6 +119,17 @@ class DecisionTree(object):
 
         return
 
+    def explore_structure(self):
+        self.explore_tree(self.root_node, 0)
+    
+    def explore_tree(self, node, deepth):
+        if (len(node.sub_trees) == 0):
+            print("Deepth: %d Sample Count:%d"%(deepth, len(node.labels)))
+        else:
+            for k in node.sub_trees.keys():
+                self.explore_tree(node.sub_trees[k], deepth + 1)
+
+
 data = pd.read_csv('training.txt', sep=' ', header = None)
 train_label = np.array(data[0])
 train_feature = np.array(data.iloc[:,1:])
@@ -126,37 +144,37 @@ for i in range(0, test_feature.shape[0]):
     test_feature[i] = [int(d.split(':')[1]) for d in test_feature[i]]
 
 ####Testing
-Fold = 5
+# Fold = 5
 
-train_sample_count = int(len(train_feature) / Fold)
-sample_indecis = np.random.choice(len(train_feature), len(train_feature), replace=False)
-sample = []
-for i in range(0, Fold):
-    sample += [sample_indecis[(i * train_sample_count):((i + 1) * train_sample_count)]]
+# train_sample_count = int(len(train_feature) / Fold)
+# sample_indecis = np.random.choice(len(train_feature), len(train_feature), replace=False)
+# sample = []
+# for i in range(0, Fold):
+#     sample += [sample_indecis[(i * train_sample_count):((i + 1) * train_sample_count)]]
+
+# for m in [1, 2, 4, 8, 12, 16, 20, 24, 30, 34, 40]:
+#     train_acc = 0
+#     test_acc = 0
+#     for k in range(0, Fold):
+#         train_sample = np.array([], np.int)
+#         for i in range(0, Fold):
+#             if i != k:
+#                 train_sample = np.append(train_sample, sample[i])
+#         test_sample = sample[k]
+
+#         dt = DecisionTree(m)
+#         dt.train(train_feature[train_sample], train_label[train_sample])
+#         # print("Min_Sample:%d, Leaf Count:%d"%(m, dt.leaf_count))
+#         train_predict = [train_label[i] == dt.predict(train_feature[i]) for i in train_sample]
+#         test_predict = [train_label[i] == dt.predict(train_feature[i]) for i in test_sample]
+#         train_acc += sum(train_predict)/len(train_predict)
+#         test_acc += sum(test_predict)/len(test_predict)
+
+#     print("[%d] Training Accuracy:%f, Test Accuracy:%f"%(m, train_acc / Fold, test_acc / Fold))
 
 
-for m in [1, 2, 4, 8, 12, 16, 20, 24, 30, 34, 40]:
-    train_acc = 0
-    test_acc = 0
-    for k in range(0, Fold):
-        train_sample = np.array([], np.int)
-        for i in range(0, Fold):
-            if i != k:
-                train_sample = np.append(train_sample, sample[i])
-        test_sample = sample[k]
-
-        dt = DecisionTree(m)
-        dt.train(train_feature[train_sample], train_label[train_sample])
-        # print("Min_Sample:%d, Leaf Count:%d"%(m, dt.leaf_count))
-        train_predict = [train_label[i] == dt.predict(train_feature[i]) for i in train_sample]
-        test_predict = [train_label[i] == dt.predict(train_feature[i]) for i in test_sample]
-        train_acc += sum(train_predict)/len(train_predict)
-        test_acc += sum(test_predict)/len(test_predict)
-
-    print("[%d] Training Accuracy:%f, Test Accuracy:%f"%(m, train_acc / Fold, test_acc / Fold))
-
-
-# dt = DecisionTree(30)
-# dt.train(train_feature, train_label)
-# for x in test_feature:
-#     print(dt.predict(x))
+dt = DecisionTree(4)
+dt.train(train_feature, train_label)
+# dt.explore_structure()
+for x in test_feature:
+    print(dt.predict(x))
