@@ -33,18 +33,26 @@ library(xgboost)
 
 X_train = train_data[,2:dim(train_data)[2]]
 X_train = model.matrix(~., X_train)[, -1]
-Y_train = train_data$X1
+Y_train = as.integer(train_data$X1) - 1
 
+numberOfClasses = length(unique(Y_train))
 xgb.model = xgboost(data = X_train, label=Y_train,
-                      objective = "binary:logistic",
-                      eval_metric = "logloss",
+                      objective = "multi:softprob",
+                      eval_metric = "mlogloss",
+                      num_class = numberOfClasses,
+                      nfold = 5,
                       nround = 500,
                       verbose = TRUE)
 
 ```
 
+Make 0.789000 Accuracy in the test data!!!
 ```{r}
 X_test = model.matrix(~., test_data)[, -1]
-test_label = predict(xgb.model, X_test, prediction_type="class")
+test_pred = predict(xgb.model, X_test)
+test_prediction <- matrix(test_pred, nrow = numberOfClasses,
+                          ncol = length(test_pred)/numberOfClasses)
+test_label = apply(test_prediction, 2, which.max)
+write(test_label, file = 'r_xgb.txt', ncolumns = 1)
 ```
 

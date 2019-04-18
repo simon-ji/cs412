@@ -1758,43 +1758,41 @@ write(array(test_label), file = 'r.txt')</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh4Z2Jvb3N0KVxuXG5YX3RyYWluID0gdHJhaW5fZGF0YVssMjpkaW0odHJhaW5fZGF0YSlbMl1dXG5YX3RyYWluID0gbW9kZWwubWF0cml4KH4uLCBYX3RyYWluKVssIC0xXVxuWV90cmFpbiA9IHRyYWluX2RhdGEkWDFcblxueGdiLm1vZGVsID0geGdib29zdChkYXRhID0gWF90cmFpbiwgbGFiZWw9WV90cmFpbixcbiAgICAgICAgICAgICAgICAgICAgICBvYmplY3RpdmUgPSBcImJpbmFyeTpsb2dpc3RpY1wiLFxuICAgICAgICAgICAgICAgICAgICAgIGV2YWxfbWV0cmljID0gXCJsb2dsb3NzXCIsXG4gICAgICAgICAgICAgICAgICAgICAgbnJvdW5kID0gNTAwLFxuICAgICAgICAgICAgICAgICAgICAgIHZlcmJvc2UgPSBUUlVFKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh4Z2Jvb3N0KVxuXG5YX3RyYWluID0gdHJhaW5fZGF0YVssMjpkaW0odHJhaW5fZGF0YSlbMl1dXG5YX3RyYWluID0gbW9kZWwubWF0cml4KH4uLCBYX3RyYWluKVssIC0xXVxuWV90cmFpbiA9IGFzLmludGVnZXIodHJhaW5fZGF0YSRYMSkgLSAxXG5cbm51bWJlck9mQ2xhc3NlcyA9IGxlbmd0aCh1bmlxdWUoWV90cmFpbikpXG54Z2IubW9kZWwgPSB4Z2Jvb3N0KGRhdGEgPSBYX3RyYWluLCBsYWJlbD1ZX3RyYWluLFxuICAgICAgICAgICAgICAgICAgICAgIG9iamVjdGl2ZSA9IFwibXVsdGk6c29mdHByb2JcIixcbiAgICAgICAgICAgICAgICAgICAgICBldmFsX21ldHJpYyA9IFwibWxvZ2xvc3NcIixcbiAgICAgICAgICAgICAgICAgICAgICBudW1fY2xhc3MgPSBudW1iZXJPZkNsYXNzZXMsXG4gICAgICAgICAgICAgICAgICAgICAgbmZvbGQgPSA1LFxuICAgICAgICAgICAgICAgICAgICAgIG5yb3VuZCA9IDUwMCxcbiAgICAgICAgICAgICAgICAgICAgICB2ZXJib3NlID0gVFJVRSlcblxuYGBgIn0= -->
 <pre class="r"><code>library(xgboost)
 
 X_train = train_data[,2:dim(train_data)[2]]
 X_train = model.matrix(~., X_train)[, -1]
-Y_train = train_data$X1
+Y_train = as.integer(train_data$X1) - 1
 
+numberOfClasses = length(unique(Y_train))
 xgb.model = xgboost(data = X_train, label=Y_train,
-                      objective = &quot;binary:logistic&quot;,
-                      eval_metric = &quot;logloss&quot;,
+                      objective = &quot;multi:softprob&quot;,
+                      eval_metric = &quot;mlogloss&quot;,
+                      num_class = numberOfClasses,
+                      nfold = 5,
                       nround = 500,
-                      verbose = TRUE)</code></pre>
+                      verbose = TRUE)
+</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4geGdiLml0ZXIudXBkYXRlKGJzdCRoYW5kbGUsIGR0cmFpbiwgaXRlcmF0aW9uIC0gMSwgb2JqKSA6IFxuICBbMTk6NDI6NDNdIGFtYWxnYW1hdGlvbi8uLi9zcmMvb2JqZWN0aXZlL3JlZ3Jlc3Npb25fb2JqLmNjOjk4OiBDaGVjayBmYWlsZWQ6IExvc3M6OkNoZWNrTGFiZWwoeSkgbGFiZWwgbXVzdCBiZSBpbiBbMCwxXSBmb3IgbG9naXN0aWMgcmVncmVzc2lvblxuXG5TdGFjayB0cmFjZSByZXR1cm5lZCAxMCBlbnRyaWVzOlxuW2J0XSAoMCkgMCAgIHhnYm9vc3Quc28gICAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMDExMzdmYTVmNiBkbWxjOjpTdGFja1RyYWNlKCkgKyAyNDZcbltidF0gKDEpIDEgICB4Z2Jvb3N0LnNvICAgICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDAxMTM3ZmEzYmYgZG1sYzo6TG9nTWVzc2FnZUZhdGFsOjp+TG9nTWVzc2FnZUZhdGFsKCkgKyA0N1xuW2J0XSAoMikgMiAgIHhnYm9vc3Quc28gICAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMDExMzgzYzhkMyB4Z2Jvb3N0OjpvYmo6OlJlZ0xvc3NPYmo8eGdib29zdDo6b2JqOjpMb2dpc3RpY0NsYXNzaWZpY2F0aW9uPjo6TGF6eUNoZWNrTGFiZWxzKHN0ZDo6X18xOjp2ZWN0b3I8ZmxvYXQsIHN0ZDo6X18xOjphbGxvY2F0b3I8ZmxvYXQ+ID4gY29uc3QmKSArIDIxMVxuW2J0XSAoMykgMyAgIHhnYm9vc3Quc28gICAgICAgICAgICAgICAgICAgICAgICAgIDB4MDAwMDAwMDExMzgzYmVmNyB4Z2Jvb3N0OjpvYmo6OlJlZ0xvc3NPYmo8eGdib29zdDo6b2JqOjpMb2dpc3RpY0NsYXNzaWZpY2F0aW9uPjo6R2V0R3JhZGllbnQoeGdib29zdDo6SG9zdERldmljZVZlY3RvcjxmbG9hdD4qLCB4Z2Jvb3N0OjpNZXRhSW5mbyBjb25zdCYsIGludCwgeGdib29zdDo6SG9zdERldmljZVZlY3Rvcjx4Z2Jvb3N0OjpkZXRhaWw6OkdyYWRpZW50UGFpckludGVybmFsPGZsb2F0PiA+KikgKyA2NzlcbltidF0gKDQpIDQgICB4Z2Jvb3N0LnNvICAgICAgICAgICAgICAgICAgICAgICAgICAweDAwMDAwMDAxMTM4MWY4N2UgeGdib29zdDo6TGVhcm5lckltcGw6OlVwZGF0ZU9uXG4ifQ== -->
-<pre><code>Error in xgb.iter.update(bst$handle, dtrain, iteration - 1, obj) : 
-  [19:42:43] amalgamation/../src/objective/regression_obj.cc:98: Check failed: Loss::CheckLabel(y) label must be in [0,1] for logistic regression
-
-Stack trace returned 10 entries:
-[bt] (0) 0   xgboost.so                          0x00000001137fa5f6 dmlc::StackTrace() + 246
-[bt] (1) 1   xgboost.so                          0x00000001137fa3bf dmlc::LogMessageFatal::~LogMessageFatal() + 47
-[bt] (2) 2   xgboost.so                          0x000000011383c8d3 xgboost::obj::RegLossObj&lt;xgboost::obj::LogisticClassification&gt;::LazyCheckLabels(std::__1::vector&lt;float, std::__1::allocator&lt;float&gt; &gt; const&amp;) + 211
-[bt] (3) 3   xgboost.so                          0x000000011383bef7 xgboost::obj::RegLossObj&lt;xgboost::obj::LogisticClassification&gt;::GetGradient(xgboost::HostDeviceVector&lt;float&gt;*, xgboost::MetaInfo const&amp;, int, xgboost::HostDeviceVector&lt;xgboost::detail::GradientPairInternal&lt;float&gt; &gt;*) + 679
-[bt] (4) 4   xgboost.so                          0x000000011381f87e xgboost::LearnerImpl::UpdateOn</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>Make 0.789000 Accuracy in the test data!!!</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuWF90ZXN0ID0gbW9kZWwubWF0cml4KH4uLCB0ZXN0X2RhdGEpWywgLTFdXG50ZXN0X2xhYmVsID0gcHJlZGljdCh4Z2IubW9kZWwsIFhfdGVzdCwgcHJlZGljdGlvbl90eXBlPVwiY2xhc3NcIilcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuWF90ZXN0ID0gbW9kZWwubWF0cml4KH4uLCB0ZXN0X2RhdGEpWywgLTFdXG50ZXN0X3ByZWQgPSBwcmVkaWN0KHhnYi5tb2RlbCwgWF90ZXN0KVxudGVzdF9wcmVkaWN0aW9uIDwtIG1hdHJpeCh0ZXN0X3ByZWQsIG5yb3cgPSBudW1iZXJPZkNsYXNzZXMsXG4gICAgICAgICAgICAgICAgICAgICAgICAgIG5jb2wgPSBsZW5ndGgodGVzdF9wcmVkKS9udW1iZXJPZkNsYXNzZXMpXG50ZXN0X2xhYmVsID0gYXBwbHkodGVzdF9wcmVkaWN0aW9uLCAyLCB3aGljaC5tYXgpXG53cml0ZSh0ZXN0X2xhYmVsLCBmaWxlID0gJ3JfeGdiLnR4dCcsIG5jb2x1bW5zID0gMSlcbmBgYCJ9 -->
 <pre class="r"><code>X_test = model.matrix(~., test_data)[, -1]
-test_label = predict(xgb.model, X_test, prediction_type=&quot;class&quot;)</code></pre>
+test_pred = predict(xgb.model, X_test)
+test_prediction &lt;- matrix(test_pred, nrow = numberOfClasses,
+                          ncol = length(test_pred)/numberOfClasses)
+test_label = apply(test_prediction, 2, which.max)
+write(test_label, file = 'r_xgb.txt', ncolumns = 1)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGVjaXNpb24gVHJlZSIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKYGBge3J9CmxpYnJhcnkocmVhZHIpCnRyYWluX2RhdGEgPC0gcmVhZF9kZWxpbSgidHJhaW5pbmcudHh0IiwgIiAiLCBlc2NhcGVfZG91YmxlID0gRkFMU0UsIAogICAgICAgICAgICAgICAgICAgICAgIGNvbF9uYW1lcyA9IEZBTFNFLCB0cmltX3dzID0gVFJVRSkKdHJhaW5fZGF0YSA9IGRhdGEuZnJhbWUoc2FwcGx5KHRyYWluX2RhdGEsIHN0cmluZ3I6OnN0cl9zdWIsIHN0YXJ0ID0gLTEsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZW5kID0gLTEpKQoKdGVzdF9kYXRhIDwtIHJlYWRfZGVsaW0oInRlc3RpbmcudHh0IiwgIiAiLCBlc2NhcGVfZG91YmxlID0gRkFMU0UsIAogICAgICAgICAgICAgICAgICAgICAgIGNvbF9uYW1lcyA9IEZBTFNFLCB0cmltX3dzID0gVFJVRSkKdGVzdF9kYXRhID0gZGF0YS5mcmFtZShzYXBwbHkodGVzdF9kYXRhLCBzdHJpbmdyOjpzdHJfc3ViLCBzdGFydCA9IC0xLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVuZCA9IC0xKSkKY29sbmFtZXModGVzdF9kYXRhKSA9IGNvbG5hbWVzKHRyYWluX2RhdGEpWzI6ZGltKHRyYWluX2RhdGEpWzJdXQpgYGAKCmBgYHtyfQpsaWJyYXJ5KHJwYXJ0KQoKbW9kZWwgPSBycGFydChYMSB+IC4sIGRhdGEgPSB0cmFpbl9kYXRhKQpgYGAKCmBgYHtyfQp0ZXN0X2xhYmVsID0gcHJlZGljdChtb2RlbCwgdGVzdF9kYXRhLCB0eXBlPSJjbGFzcyIpCndyaXRlKGFycmF5KHRlc3RfbGFiZWwpLCBmaWxlID0gJ3IudHh0JykKYGBgCgpgYGB7cn0KbGlicmFyeSh4Z2Jvb3N0KQoKWF90cmFpbiA9IHRyYWluX2RhdGFbLDI6ZGltKHRyYWluX2RhdGEpWzJdXQpYX3RyYWluID0gbW9kZWwubWF0cml4KH4uLCBYX3RyYWluKVssIC0xXQpZX3RyYWluID0gdHJhaW5fZGF0YSRYMQoKeGdiLm1vZGVsID0geGdib29zdChkYXRhID0gWF90cmFpbiwgbGFiZWw9WV90cmFpbiwKICAgICAgICAgICAgICAgICAgICAgIG9iamVjdGl2ZSA9ICJiaW5hcnk6bG9naXN0aWMiLAogICAgICAgICAgICAgICAgICAgICAgZXZhbF9tZXRyaWMgPSAibG9nbG9zcyIsCiAgICAgICAgICAgICAgICAgICAgICBucm91bmQgPSA1MDAsCiAgICAgICAgICAgICAgICAgICAgICB2ZXJib3NlID0gVFJVRSkKCmBgYAoKYGBge3J9ClhfdGVzdCA9IG1vZGVsLm1hdHJpeCh+LiwgdGVzdF9kYXRhKVssIC0xXQp0ZXN0X2xhYmVsID0gcHJlZGljdCh4Z2IubW9kZWwsIFhfdGVzdCwgcHJlZGljdGlvbl90eXBlPSJjbGFzcyIpCmBgYAoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRGVjaXNpb24gVHJlZSIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKYGBge3J9CmxpYnJhcnkocmVhZHIpCnRyYWluX2RhdGEgPC0gcmVhZF9kZWxpbSgidHJhaW5pbmcudHh0IiwgIiAiLCBlc2NhcGVfZG91YmxlID0gRkFMU0UsIAogICAgICAgICAgICAgICAgICAgICAgIGNvbF9uYW1lcyA9IEZBTFNFLCB0cmltX3dzID0gVFJVRSkKdHJhaW5fZGF0YSA9IGRhdGEuZnJhbWUoc2FwcGx5KHRyYWluX2RhdGEsIHN0cmluZ3I6OnN0cl9zdWIsIHN0YXJ0ID0gLTEsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZW5kID0gLTEpKQoKdGVzdF9kYXRhIDwtIHJlYWRfZGVsaW0oInRlc3RpbmcudHh0IiwgIiAiLCBlc2NhcGVfZG91YmxlID0gRkFMU0UsIAogICAgICAgICAgICAgICAgICAgICAgIGNvbF9uYW1lcyA9IEZBTFNFLCB0cmltX3dzID0gVFJVRSkKdGVzdF9kYXRhID0gZGF0YS5mcmFtZShzYXBwbHkodGVzdF9kYXRhLCBzdHJpbmdyOjpzdHJfc3ViLCBzdGFydCA9IC0xLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVuZCA9IC0xKSkKY29sbmFtZXModGVzdF9kYXRhKSA9IGNvbG5hbWVzKHRyYWluX2RhdGEpWzI6ZGltKHRyYWluX2RhdGEpWzJdXQpgYGAKCmBgYHtyfQpsaWJyYXJ5KHJwYXJ0KQoKbW9kZWwgPSBycGFydChYMSB+IC4sIGRhdGEgPSB0cmFpbl9kYXRhKQpgYGAKCmBgYHtyfQp0ZXN0X2xhYmVsID0gcHJlZGljdChtb2RlbCwgdGVzdF9kYXRhLCB0eXBlPSJjbGFzcyIpCndyaXRlKGFycmF5KHRlc3RfbGFiZWwpLCBmaWxlID0gJ3IudHh0JykKYGBgCgpgYGB7cn0KbGlicmFyeSh4Z2Jvb3N0KQoKWF90cmFpbiA9IHRyYWluX2RhdGFbLDI6ZGltKHRyYWluX2RhdGEpWzJdXQpYX3RyYWluID0gbW9kZWwubWF0cml4KH4uLCBYX3RyYWluKVssIC0xXQpZX3RyYWluID0gYXMuaW50ZWdlcih0cmFpbl9kYXRhJFgxKSAtIDEKCm51bWJlck9mQ2xhc3NlcyA9IGxlbmd0aCh1bmlxdWUoWV90cmFpbikpCnhnYi5tb2RlbCA9IHhnYm9vc3QoZGF0YSA9IFhfdHJhaW4sIGxhYmVsPVlfdHJhaW4sCiAgICAgICAgICAgICAgICAgICAgICBvYmplY3RpdmUgPSAibXVsdGk6c29mdHByb2IiLAogICAgICAgICAgICAgICAgICAgICAgZXZhbF9tZXRyaWMgPSAibWxvZ2xvc3MiLAogICAgICAgICAgICAgICAgICAgICAgbnVtX2NsYXNzID0gbnVtYmVyT2ZDbGFzc2VzLAogICAgICAgICAgICAgICAgICAgICAgbmZvbGQgPSA1LAogICAgICAgICAgICAgICAgICAgICAgbnJvdW5kID0gNTAwLAogICAgICAgICAgICAgICAgICAgICAgdmVyYm9zZSA9IFRSVUUpCgpgYGAKCk1ha2UgMC43ODkwMDAgQWNjdXJhY3kgaW4gdGhlIHRlc3QgZGF0YSEhIQpgYGB7cn0KWF90ZXN0ID0gbW9kZWwubWF0cml4KH4uLCB0ZXN0X2RhdGEpWywgLTFdCnRlc3RfcHJlZCA9IHByZWRpY3QoeGdiLm1vZGVsLCBYX3Rlc3QpCnRlc3RfcHJlZGljdGlvbiA8LSBtYXRyaXgodGVzdF9wcmVkLCBucm93ID0gbnVtYmVyT2ZDbGFzc2VzLAogICAgICAgICAgICAgICAgICAgICAgICAgIG5jb2wgPSBsZW5ndGgodGVzdF9wcmVkKS9udW1iZXJPZkNsYXNzZXMpCnRlc3RfbGFiZWwgPSBhcHBseSh0ZXN0X3ByZWRpY3Rpb24sIDIsIHdoaWNoLm1heCkKd3JpdGUodGVzdF9sYWJlbCwgZmlsZSA9ICdyX3hnYi50eHQnLCBuY29sdW1ucyA9IDEpCmBgYAoK</div>
 
 
 
